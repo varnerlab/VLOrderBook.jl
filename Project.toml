@@ -3,6 +3,15 @@ uuid = "aaf583bd-e1f6-46ea-b02f-a6ceb51252d5"
 authors = ["ruize_ren <renruize1998@gmail.com>"]
 version = "0.1.0"
 
+[compat]
+AVLTrees = "0.3"
+BenchmarkTools = "1.3"
+DataStructures = "0.18"
+FixedPointDecimals = "0.4"
+HTTP = "0.9"
+UnicodePlots = "2.9"
+WebSockets = "1.5"
+
 [deps]
 AVLTrees = "4459d02e-7d0b-4014-b2a2-e38a540ff820"
 BenchmarkTools = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"

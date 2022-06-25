@@ -4,15 +4,6 @@ julia_version = "1.7.2"
 manifest_format = "2.0"
 
 
-[compat]
-AVLTrees = "0.3"
-BenchmarkTools = "1.3"
-DataStructures = "0.18"
-FixedPointDecimals = "0.4"
-HTTP = "0.9"
-UnicodePlots = "2.9"
-WebSockets = "1.5"
-
 
 [[deps.AVLTrees]]
 git-tree-sha1 = "f53e386411d9c596624bc254b13ce9aa31d5307a"
