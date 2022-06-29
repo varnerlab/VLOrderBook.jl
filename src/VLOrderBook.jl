@@ -1,17 +1,15 @@
 module VLOrderBook
-using AVLTrees: AVLTree
-using Base: @kwdef
-using Printf
-include("sidequeue.jl")
-include("orderqueue.jl")
-include("sidebook.jl")
-include("book.jl")
-include("ordermatching.jl")
-include("moneydata.jl")
+
+# include -
+include("Include.jl")
+
+# export types -
 export BUY_ORDER, SELL_ORDER, VANILLA_FILLTYPE, IMMEDIATEORCANCEL_FILLTYPE, FILLORKILL_FILLTYPE
 export OrderBook, Order, OrderTraits, AcctMap, OrderSide
 export Monetary, AssetMismatch
 export Priority, OneSideUnmatchedBook, UnmatchedOrderBook
+
+# export functions -
 export submit_order!,
     insert_unmatched_order!,
     submit_limit_order!,
