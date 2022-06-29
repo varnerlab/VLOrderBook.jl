@@ -1,8 +1,8 @@
 # VLOrderBook
-`VLOrderBook.jl` simulates the dynamics of an [Order Book](https://www.investopedia.com/terms/o/order-book.asp). The code for this package was based on:
+`VLOrderBook.jl` simulates the dynamics of an [Order Book](https://www.investopedia.com/terms/o/order-book.asp). The code for this package was based on two previous codes:
 
-* [LimitOrderBook.jl](https://github.com/p-casgrain/LimitOrderBook.jl) and
-* [Money.jl]( https://github.com/swiesend/Money.jl)
+* [LimitOrderBook.jl](https://github.com/p-casgrain/LimitOrderBook.jl)
+* [Money.jl](https://github.com/swiesend/Money.jl)
 
 ## Extended Features
 1. Some bug has been fixed for the original package "https://github.com/p-casgrain/LimitOrderBook.jl"
