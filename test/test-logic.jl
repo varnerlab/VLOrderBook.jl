@@ -1,5 +1,6 @@
-begin # Create (Deterministic) Limit Order Generator
-    
+begin 
+
+    # Create (Deterministic) Limit Order Generator
     MyOrderSubTypes = (Int64,Float64,Int64,Int64) # define types for Order Size, Price, Order IDs, Account IDs
     MyOrderType = Order{MyOrderSubTypes...}
     MyLOBType = OrderBook{MyOrderSubTypes...}
@@ -12,13 +13,12 @@ begin # Create (Deterministic) Limit Order Generator
     price_iter = ( Float32(100.0 + sgn*δ) for (δ,sgn) in zip(spread_iter,sign_iter) )
     size_iter = cycle([2,5,3,4,10,15,1,6,13,11,4,1,5])
     
-    # zip them all together
-    lmt_order_info_iter = zip(orderid_iter,price_iter,size_iter,side_iter)
-end
-
-begin # Create (Deterministic) Market Order Generator
+    # Create (Deterministic) Market Order Generator
     mkt_size_iter = cycle([10,20,30,15,25,5,7])
     mkt_side_iter = cycle([SELL_ORDER,BUY_ORDER,BUY_ORDER,SELL_ORDER,BUY_ORDER,SELL_ORDER])
+   
+    # zip them all together
+    lmt_order_info_iter = zip(orderid_iter,price_iter,size_iter,side_iter)
     mkt_order_info_iter = zip(mkt_size_iter,mkt_side_iter)
 end
 
@@ -27,7 +27,7 @@ end
     ob = MyLOBType() # Initialize empty book
     uob = MyUOBType()
 
-    order_info_lst = take(lmt_order_info_iter,50000)
+    order_info_lst = take(lmt_order_info_iter, 50000)
     
     # Add a bunch of orders
     for (orderid, price, size, side) in order_info_lst
