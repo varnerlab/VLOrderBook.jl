@@ -1,4 +1,3 @@
-using FixedPointDecimals
 import Base: print, show,
              convert, promote_rule, decompose,
              abs, sign, flipsign,
@@ -6,11 +5,6 @@ import Base: print, show,
              ==, <, <=,
              +, -, *, /,
              min, max, minmax, div, rem, divrem
-
-
-struct Monetary{name,decimals} <: Real where {name<:Symbol, decimals<:Int}
-    amount::FixedDecimal{BigInt,decimals}
-end
 
 """
 Get the number `d::Int` of stored digits after the decimal point.
@@ -58,15 +52,9 @@ end
 
 print(io::IO, x::Monetary) = show(io, x)
 
-struct AssetMismatch <: Exception
-    base::Symbol
-    counter::Symbol
-end
-
 function Base.showerror(io::IO, e::AssetMismatch)
     print(io, "Assets of different kinds: ", e.base, "/", e.counter)
 end
-
 
 convert(::Type{Monetary{n,d}}, x::Integer) where {n,d} = Monetary(n,x, decimal_digits=d)
 convert(::Type{Monetary{n,d}}, x::String)  where {n,d} = Monetary(n,x, decimal_digits=d)

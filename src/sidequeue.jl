@@ -1,31 +1,6 @@
-using Dates, Base, DataStructures
 import Base: >, <, ==, !=, isless, <=, >=, !
-abstract type Comparable end
 
-mutable struct Priority{Sz<:Real, Px<:Real, Oid<:Integer, Aid<:Integer, Dt<:DateTime, Ip<:String, Pt<:Integer}   <: Comparable
-    size::Sz
-    price::Px
-    transcation_id::Oid
-    account_id::Aid
-    create_time::Dt
-    ip_address::Ip
-    port::Pt
-    function Priority{Sz, Px, Oid, Aid, Dt, Ip, Pt}(
-        size::Sz, 
-        price::Px, 
-        transcation_id::Oid, 
-        account_id::Aid, 
-        create_time::Dt, 
-        ip_address::Ip, 
-        port::Pt
-        )where{Sz<:Real,Px<:Real,Oid<:Integer,Aid<:Integer,Dt<:DateTime,Ip<:String,Pt<:Integer}
-        new{Sz, Px, Oid, Aid, Dt, Ip, Pt}(
-            Sz(size), Px(price), transcation_id, account_id, Dt(create_time), Ip(ip_address), Pt(port)
-            )
-    end
-end
 # price > size > timestamp > order id , account id will be ignored
-
 function <(x::Priority, y::Priority) where Priority <: Comparable
     if x.price == y.price
         if x.size == y.size
@@ -75,14 +50,8 @@ function >=(x::Priority, y::Priority) where Priority <: Comparable
 end
 
 isless(x::Priority, y::Priority) = (x < y)
-import Base.@kwdef
-@kwdef mutable struct OneSideUnmatchedBook{Sz<:Real, Px<:Real, Oid<:Integer, Aid<:Integer, Dt<:DateTime, Ip<:String, Pt<:Integer}
-    is_bid_side::Bool
-    unmatched_book::SortedSet{Priority{Sz,Px,Oid,Aid,Dt,Ip,Pt}} = SortedSet{Priority{Sz,Px,Oid,Aid,Dt,Ip,Pt}}()
-    total_volume::Sz = 0 # Total volume available in shares
-    num_orders::Int32 = Int32(0) # Number of orders in the book
-    best_price::Union{Px,Nothing} = nothing # best bid or ask
-end
+
+
 
 isbidunmatchedbook(sub::OneSideUnmatchedBook) = !sub.is_bid_side
 isaskunmatchedbook(sub::OneSideUnmatchedBook) = sub.is_bid_side
@@ -247,6 +216,7 @@ import VLOrderBook
 using VLOrderBook, Random, Dates, Test, DataStructures
 
 MyPriority = Priority{Int64, Float64, Int64, Int64, DateTime, String, Integer}
+
 # Custom Serialization of a MyPriority instance
 function Serialization.serialize(s::AbstractSerializer, instance::MyPriority)
     Serialization.writetag(s.io, Serialization.OBJECT_TAG)

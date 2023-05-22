@@ -1,28 +1,4 @@
 using AVLTrees
-"""
-    OneSidedBook{Sz,Px,Oid,Aid}
-
-One-Sided book with order-id type Oid, account-id type Aid,
-size type Sz and price type Px.
-
-OneSidedBook is a one-sided book (i.e. :BID or :ASK) of order queues at
-varying prices.
-
-OrderQueues are stored in an AVLTree (.book) indexed
-either by price (ASK side) or -price (BID side)
-
-The book keeps track of various statistics such as the current best price,
-total share and price volume, as well as total contained number of orders.
-
-"""
-@kwdef mutable struct OneSidedBook{Sz<:Real,Px<:Real,Oid<:Integer,Aid<:Integer}
-    is_bid_side::Bool
-    book::AVLTree{Px,OrderQueue{Sz,Px,Oid,Aid}} = AVLTree{Px,OrderQueue{Sz,Px,Oid,Aid}}()
-    total_volume::Sz = 0 # Total volume available in shares
-    total_volume_funds::Float64 = 0.0 # Total volume available in underlying currency
-    num_orders::Int32 = Int32(0) # Number of orders in the book
-    best_price::Union{Px,Nothing} = nothing # best bid or ask
-end
 
 isbidbook(sb::OneSidedBook) = sb.is_bid_side
 isaskbook(sb::OneSidedBook) = !sb.is_bid_side

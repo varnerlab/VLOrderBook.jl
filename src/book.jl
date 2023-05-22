@@ -1,21 +1,6 @@
 using UnicodePlots: barplot
 using Base: show, print, popfirst!
 
-"""
-    AcctMap{Sz,Px,Oid,Aid}
-
-Collection of open orders by account.
-
-`(Sz,Px,Oid,Aid)` characterize the type of Order present in the `AcctMap`.
-See documentation on [`Order`](@ref) for more information on the meaning of types.
-
-The account map is implemented as a `Dict` containing `AVLTree`s.
-    AcctMap{Sz,Px,Oid,Aid} = Dict{Aid,AVLTree{Oid,Order{Sz,Px,Oid,Aid}}}
-The outer key is the account id, mapping to an `AVLTree` of `Order`s keyed by order id.
-"""
-AcctMap{Sz<:Real,Px<:Real,Oid<:Integer,Aid<:Integer} = Dict{
-    Aid,AVLTree{Oid,Order{Sz,Px,Oid,Aid}}
-}
 
 # Add functions for adding and removing orders from account map
 @inline function _add_order_acct_map!(
@@ -35,54 +20,7 @@ end
     return nothing
 end
 
-"""
-    OrderBook{Sz,Px,Oid,Aid}
 
-An `OrderBook` is a data structure containing __limit orders__ represented as objects of type `Order{Sz,Px,Oid,Aid}`.
-
-See documentation on [`Order`](@ref) for more information on this type.
-
-How to use `Orderbook`:
- - Initialize an empty limit order book as `OrderBook{Sz,Px,Oid,Aid}()`
- - __Submit__ or __cancel__ limit orders with [`submit_limit_order!`](@ref) and [`cancel_order!`](@ref).
- - Submit __market orders__ with [`submit_market_order!`](@ref)
- - Retrieve order book state information with `print` or `show` methods, as well as [`book_depth_info`](@ref),
- [`best_bid_ask`](@ref), [`volume_bid_ask`](@ref), [`n_orders_bid_ask`](@ref) and [`get_acct`](@ref)
- - Write book state to `csv` file with [`write_csv`](@ref).
-
-"""
-mutable struct OrderBook{Sz<:Real,Px<:Real,Oid<:Integer,Aid<:Integer}
-    bid_orders::OneSidedBook{Sz,Px,Oid,Aid} # bid orders
-    ask_orders::OneSidedBook{Sz,Px,Oid,Aid} # ask orders
-    acct_map::AcctMap{Sz,Px,Oid,Aid} # Map from acct_id::Aid to AVLTree{order_id::Oid,Order{Sz,Px,Oid,Aid}}
-    flags::Dict{Symbol,Any} # container for additional order book logic flags (not yet implemented)
-    function OrderBook{Sz,Px,Oid,Aid}() where {Sz,Px,Oid,Aid}
-        return new{Sz,Px,Oid,Aid}(
-            OneSidedBook{Sz,Px,Oid,Aid}(; is_bid_side=true),
-            OneSidedBook{Sz,Px,Oid,Aid}(; is_bid_side=false),
-            AcctMap{Sz,Px,Oid,Aid}(),
-            Dict{Symbol,Any}(:PlotTickMax => 5),
-        )
-    end
-end
-
-"""
-UnmatchedOrder{Sz, Px, Oid, Aid, Dt, Ip} 
-
-An `UnmatchedOrder` is a data structure containing __limit orders__ represented as 
-objects of type `Order{Sz, Px, Oid, Aid, Dt, Ip} `.
-
-"""
-mutable struct UnmatchedOrderBook{Sz<:Real, Px<:Real, Oid<:Integer, Aid<:Integer, Dt<:DateTime, Ip<:String, Pt<:Integer}
-    bid_unmatched_orders::OneSideUnmatchedBook{Sz, Px, Oid, Aid, Dt, Ip, Pt} # bid orders
-    ask_unmatched_orders::OneSideUnmatchedBook{Sz, Px, Oid, Aid, Dt, Ip, Pt} # ask orders
-    function UnmatchedOrderBook{Sz, Px, Oid, Aid, Dt, Ip, Pt}() where {Sz, Px, Oid, Aid, Dt, Ip, Pt}
-        return new{Sz, Px, Oid, Aid, Dt, Ip, Pt}(
-            OneSideUnmatchedBook{Sz, Px, Oid, Aid, Dt, Ip, Pt}(; is_bid_side=true),
-            OneSideUnmatchedBook{Sz, Px, Oid, Aid, Dt, Ip, Pt}(; is_bid_side=false),
-        )
-    end
-end
 
 
 """
@@ -225,8 +163,8 @@ bid_orders(ob::OrderBook) = Iterators.flatten(q for (k,q) in ob.bid_orders.book)
 writing csv file to ob::OrderBook system
 """
 function process_file(
-    io::IO, ob::OrderBook, file_name::String
-)
+    io::IO, ob::OrderBook, file_name::String)
+    
     io = open(file_name, "r");
     current_string = read(io, String)
     arr = split(current_string,"\n")
