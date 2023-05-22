@@ -19,7 +19,9 @@ Get the asset name `n::Symbol` of the monetary value.
 """
 name(::Monetary{n,d}) where {n,d} = n
 
-
+"""
+Monetary(asset::Union{Symbol,String}, amount::A; decimal_digits = 18) where {A<:Union{AbstractString,Integer}}
+"""
 function Monetary(asset::Union{Symbol,String}, amount::A; decimal_digits = 18) where {A<:Union{AbstractString,Integer}}
     if typeof(asset) == Symbol
         s = asset
@@ -35,6 +37,7 @@ function Monetary(asset::Union{Symbol,String}, amount::A; decimal_digits = 18) w
 
     Monetary{s,decimal_digits}(fd)
 end
+
 
 function show(io::IO, x::Monetary)
     asset_position    = get(io, :asset_position, :left)

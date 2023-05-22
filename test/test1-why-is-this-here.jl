@@ -1,4 +1,3 @@
-import VLOrderBook
 using VLOrderBook, Random
 using Test
 using Base.Iterators: zip,cycle,take,filter
