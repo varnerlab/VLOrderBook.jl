@@ -1,11 +1,11 @@
-using AVLTrees
 
 isbidbook(sb::OneSidedBook) = sb.is_bid_side
 isaskbook(sb::OneSidedBook) = !sb.is_bid_side
 Base.isempty(sb::OneSidedBook) = isempty(sb.book)
 
 
-"Compute total volume available below limit price"
+# == PRIVATE METHODS BELOW HERE ======================================================================================================= #
+# Compute total volume available below limit price
 function _size_available(sb::OneSidedBook{Sz,Px,Oid,Aid},limit_price::Px) where {Sz,Px,Oid,Aid}
     t = Sz(0)
     if isbidbook(sb)
@@ -22,7 +22,7 @@ function _size_available(sb::OneSidedBook{Sz,Px,Oid,Aid},limit_price::Px) where 
     return t
 end
 
-"Compute currency volume available below limit price"
+# Compute currency volume available below limit price"
 function _funds_available(sb::OneSidedBook{Sz,Px,Oid,Aid},limit_price::Px) where {Sz,Px,Oid,Aid}
     t = Int64(0.0)
     if isbidbook(sb)
@@ -41,13 +41,13 @@ end
 _size_available(sb::OneSidedBook,::Nothing) = sb.total_volume
 _funds_available(sb::OneSidedBook,::Nothing) = sb.total_volume_funds
 
-"Updates the latest best price in a Sidebook (either :BID or :ASK book)."
+# Updates the latest best price in a Sidebook (either :BID or :ASK book)."
 function _update_next_best_price!(sb::OneSidedBook)
     sb.best_price = isempty(sb.book) ? nothing : abs(first(sb.book)[1])
     return nothing
 end
 
-"Retrieve order queue from OneSidedBook at given price"
+# Retrieve order queue from OneSidedBook at given price"
 function _get_price_queue(
     sb::OneSidedBook{<:Real,Px,<:Integer,<:Integer}, price::Px
 ) where {Px}
@@ -55,7 +55,7 @@ function _get_price_queue(
     return AVLTrees.findkey(sb.book, pricekey) # Return the price queue
 end
 
-"Delete entire queue associated with given price from OneSidedBook and track stats"
+# Delete entire queue associated with given price from OneSidedBook and track stats"
 function _popat_queue!(
     sb::OneSidedBook{Sz,Px,Oid,Aid}, price::Px
 ) where {Sz,Px,Oid,Aid}
@@ -69,7 +69,7 @@ function _popat_queue!(
     return price_queue
 end
 
-"Pop first queue and track stats"
+# Pop first queue and track stats"
 function _popfirst_queue!(
     sb::OneSidedBook{Sz,Px,Oid,Aid}
 ) where {Sz,Px,Oid,Aid}
@@ -83,7 +83,7 @@ function _popfirst_queue!(
 end
 
 
-"Insert entire price queue into OneSidedBook and track stats"
+# Insert entire price queue into OneSidedBook and track stats"
 function _insert_queue!(
     sb::OneSidedBook{Sz,Px,Oid,Aid},
     price_queue::OrderQueue
@@ -99,11 +99,20 @@ function _insert_queue!(
 end
 
 
-"Insert new_order into OneSidedBook at given price, create new price queue if needed"
-function insert_order!(
-    sb::OneSidedBook{Sz,Px,Oid,Aid}, new_order::Order{Sz,Px,Oid,Aid}
-) where {Sz,Px,Oid,Aid}
+# == PRIVATE METHODS ABOVE HERE ======================================================================================================== #
+
+
+# == PUBLIC METHODS BELOW HERE ========================================================================================================= #
+
+"""
+    insert_order!(sb::OneSidedBook{Sz,Px,Oid,Aid}, new_order::Order{Sz,Px,Oid,Aid}) where {Sz,Px,Oid,Aid}
+
+Insert new_order into OneSidedBook at given price, create new price queue if needed"
+"""
+function insert_order!(sb::OneSidedBook{Sz,Px,Oid,Aid}, new_order::Order{Sz,Px,Oid,Aid}) where {Sz,Px,Oid,Aid}
+    
     pricekey = isaskbook(sb) ? new_order.price : -new_order.price
+    
     # search for order queue at price
     order_queue = AVLTrees.findkey(sb.book, pricekey)
     if isnothing(order_queue) # If key not present (price doesnt exist in book)
@@ -139,12 +148,15 @@ end
 #     return nothing
 # end
 
-"Delete order with given price/tick_id from book"
-function pop_order!(
-    sb::OneSidedBook{Sz,Px,Oid,Aid}, price::Px, orderid::Oid
-) where {Oid,Aid,Sz<:Real,Px<:Real}
+"""
+    pop_order!(sb::OneSidedBook{Sz,Px,Oid,Aid}, price::Px, orderid::Oid) where {Oid, Aid, Sz<:Real, Px<:Real}
+
+Delete order with given price/tick_id from book
+"""
+function pop_order!(sb::OneSidedBook{Sz,Px,Oid,Aid}, price::Px, orderid::Oid) where {Oid, Aid, Sz<:Real, Px<:Real}
     # Get price queue and delete order from it
     order_queue = _get_price_queue(sb, price)
+    
     if !isnothing(order_queue)
         Δvolm = order_queue.total_volume[] # get stats before deletion
         ord = popat_orderid!(order_queue, orderid)
@@ -165,3 +177,4 @@ function pop_order!(
         return nothing
     end
 end
+# == PUBLIC ABOVE BELOW HERE ========================================================================================================== #

@@ -1,7 +1,3 @@
-using UnicodePlots: barplot
-using Base: show, print, popfirst!
-
-
 # Add functions for adding and removing orders from account map
 @inline function _add_order_acct_map!(
     acct_map::AcctMap{Sz,Px,Oid,Aid}, acct::Aid, order::Order{Sz,Px,Oid,Aid}

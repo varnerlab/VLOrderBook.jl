@@ -143,7 +143,8 @@ function _walk_order_book_bysize!(
     limit_price::Union{Px,Nothing},
     order_mode::OrderTraits,
 )::Tuple{Vector{Order{Sz,Px,Oid,Aid}},Sz} where {Sz,Px,Oid,Aid}
-    # Allocate memory for order output
+    
+# Allocate memory for order output
     order_match_lst = Vector{Order{Sz,Px,Oid,Aid}}()
     shares_left = order_size # remaining quantity to trade
     # Perform initial available liquidity check
@@ -236,6 +237,9 @@ function _walk_order_book_byfunds!(
     return order_match_lst, funds_left
 end
 
+
+# == PUBLIC METHODS BELOW HERE ======================================================================================================== #
+
 """
     submit_market_order!(ob::OrderBook,side::OrderSide,mo_size[,fill_mode::OrderTraits])
 
@@ -256,9 +260,14 @@ function submit_market_order!(
     ob::OrderBook{Sz,Px,Oid,Aid},
     side::OrderSide,
     mo_size::Real,
-    fill_mode::OrderTraits=VANILLA_FILLTYPE,
-) where {Sz,Px,Oid,Aid}
+    fill_mode::OrderTraits=VANILLA_FILLTYPE) where {Sz,Px,Oid,Aid}
+    
+    
+    # check: bad arg 
     mo_size > zero(mo_size) || error("market order argument mo_size must be positive")
+    
+    
+    # logic -
     if isbuy(side)
         return _walk_order_book_bysize!(ob.ask_orders, Sz(mo_size), nothing, fill_mode)
     else
@@ -285,10 +294,12 @@ __Note:__ Only `fill_mode.allornone` will be considered from `fill_mode::OrderTr
 All other entries will be ignored.
 
 """
-function submit_market_order_byfunds!(
-    ob::OrderBook, side::OrderSide, funds::Real, fill_mode::OrderTraits=VANILLA_FILLTYPE
-)
+function submit_market_order_byfunds!(ob::OrderBook, side::OrderSide, funds::Real, fill_mode::OrderTraits=VANILLA_FILLTYPE)::Tuple
+    
+    # check: do we have money?
     funds > zero(funds) || error("market order argument funds must be positive")
+    
+    
     if isbuy(side)
         return _walk_order_book_byfunds!(ob.ask_orders, funds, nothing, fill_mode)
     else
@@ -296,8 +307,8 @@ function submit_market_order_byfunds!(
     end
 end
 
-# Order Cancellation functions
 
+# ORDER CANCEL METHODS
 """
     cancel_order!(ob::OrderBook, o::Order)
     cancel_order!(ob::OrderBook, orderid, side, price [, acct_id=nothing])
@@ -306,27 +317,32 @@ Cancels Order `o`, or order with matching information from OrderBook.
 
 Provide `acct_id` if known to guarantee correct account tracking.
 """
-function cancel_order!(
-    ob::OrderBook{Sz,Px,Oid,Aid}, orderid::Oid, side::OrderSide, price
-) where {Sz,Px,Oid,Aid}
+function cancel_order!(ob::OrderBook{Sz,Px,Oid,Aid}, orderid::Oid, side::OrderSide, price) where {Sz,Px,Oid,Aid}
+    
     # Delete order from bid (buy) or ask (sell) book
     if isbuy(side)
         popped_ord = pop_order!(ob.bid_orders, Px(price), orderid)
     else
         popped_ord = pop_order!(ob.ask_orders, Px(price), orderid)
     end
+    
     # Delete order from account maps
     if !isnothing(popped_ord) && !isnothing(popped_ord.acctid)
         _delete_order_acct_map!(ob.acct_map, popped_ord.acctid, popped_ord.orderid)
     end
+    
+    # return popped order -
     return popped_ord
 end
 
+# short hand -
 cancel_order!(ob::OrderBook, o::Order) = cancel_order!(ob, o.orderid, o.side, o.price)
 
-function cancel_unmatched_market_order!(
-    ob::OrderBook{Sz,Px,Oid,Aid}, orderid::Oid, side::OrderSide, price
-) where {Sz,Px,Oid,Aid}
+"""
+cancel_unmatched_market_order!(ob::OrderBook{Sz,Px,Oid,Aid}, orderid::Oid, side::OrderSide, price) where {Sz,Px,Oid,Aid}
+"""
+function cancel_unmatched_market_order!(ob::OrderBook{Sz,Px,Oid,Aid}, orderid::Oid, side::OrderSide, price) where {Sz,Px,Oid,Aid}
+    
     # Delete order from bid (buy) or ask (sell) book
     if isbuy(side)
         popped_ord = pop_order!(ob.bid_orders, Px(price), orderid)
@@ -337,26 +353,30 @@ function cancel_unmatched_market_order!(
     if !isnothing(popped_ord) && !isnothing(popped_ord.acctid)
         _delete_order_acct_map!(ob.acct_map, popped_ord.acctid, popped_ord.orderid)
     end
+    
+    # return popped order -
     return popped_ord
 end
 
-function process_unmatched_limit_order!(
-    ob::OrderBook{Sz,Px,Oid,Aid}, orderid::Oid, side::OrderSide, price
-) where {Sz,Px,Oid,Aid}
-    #=
-    return (
-        new_open_order, cross_match_lst, remaining_size
-    )::Tuple{Union{Order{Sz,Px,Oid,Aid},Nothing},Vector{Order{Sz,Px,Oid,Aid}},Sz}
-    =#
+"""
+process_unmatched_limit_order!(ob::OrderBook{Sz,Px,Oid,Aid}, orderid::Oid, side::OrderSide, price) where {Sz,Px,Oid,Aid}
+"""
+function process_unmatched_limit_order!(ob::OrderBook{Sz,Px,Oid,Aid}, orderid::Oid, side::OrderSide, price) where {Sz,Px,Oid,Aid}
+ 
     # Delete order from bid (buy) or ask (sell) book
     if isbuy(side)
         popped_ord = pop_order!(ob.bid_orders, Px(price), orderid)
     else
         popped_ord = pop_order!(ob.ask_orders, Px(price), orderid)
     end
+    
     # Delete order from account maps
     if !isnothing(popped_ord) && !isnothing(popped_ord.acctid)
         _delete_order_acct_map!(ob.acct_map, popped_ord.acctid, popped_ord.orderid)
     end
+    
+    # return popped order -
     return popped_ord
 end
+
+# == PUBLIC METHODS ABOVE HERE ======================================================================================================== #

@@ -6,6 +6,9 @@ import Base: print, show,
              +, -, *, /,
              min, max, minmax, div, rem, divrem
 
+# define constants 
+const M = Monetary
+
 """
 Get the number `d::Int` of stored digits after the decimal point.
 """
@@ -32,8 +35,6 @@ function Monetary(asset::Union{Symbol,String}, amount::A; decimal_digits = 18) w
 
     Monetary{s,decimal_digits}(fd)
 end
-
-const M = Monetary
 
 function show(io::IO, x::Monetary)
     asset_position    = get(io, :asset_position, :left)

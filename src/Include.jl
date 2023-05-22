@@ -7,8 +7,9 @@ using FixedPointDecimals
 using AVLTrees: AVLTree
 using Base: @kwdef
 using Printf
-
-# using AVLTrees
+using AVLTrees
+using UnicodePlots: barplot
+using Base: show, print, popfirst!
 
 # Load my codes -
 include(joinpath(_PATH_TO_SRC, "Types.jl"))
